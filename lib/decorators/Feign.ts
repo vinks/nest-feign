@@ -29,7 +29,7 @@ export const Feign = (service?: string) => (target, key, descriptor) => {
             ...options,
             ...paramOptions,
             method: getMeta(METHOD_METADATA),
-            uri: getMeta(PATH_METADATA),
+            url: getMeta(PATH_METADATA),
             json: true,
             resolveWithFullResponse: true
         };
