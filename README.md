@@ -55,10 +55,12 @@ UserClient:
 
 ```typescript
 import { Component } from '@nestjs/common';
-import { Feign, Get, Param, Query, Post, Put, Delete } from 'nest-feign';
+import { Feign, FeignClient, Get, Param, Query, Post, Put, Delete } from 'nest-feign';
 
 @Component()
 export class UserClient {
+  constructor(private readonly feign: FeignClient) {}
+  
   @Get('http://example.com/api/users')
   @Feign()
   getUsers(@Query() query: object) {
