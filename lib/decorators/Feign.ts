@@ -8,7 +8,9 @@ import {
     PATH_METADATA, QUERY_METADATA,
     REQUEST_PARAMS_METADATA, FULL_RESPONSE, RESPONSE_HEADER
 } from "../constants";
-import {get} from '../Cache';
+import { get } from '../Cache';
+import { HttpException } from "@nestjs/common";
+import { get as getValue } from 'lodash';
 
 export const Feign = (service?: string) => (target, key, descriptor) => {
     const oldValue = descriptor.value;
@@ -34,12 +36,21 @@ export const Feign = (service?: string) => (target, key, descriptor) => {
             resolveWithFullResponse: true
         };
 
-        let response = {body: {}, headers: {}};
-        if (clientType === 'LB') {
-            response = await client.get(service).send(request);
-        } else {
-            response = await client(request);
+        let response = { body: {}, headers: {} };
+        try {
+            if (clientType === 'LB') {
+                response = await client.get(service).send(request);
+            } else {
+                response = await client(request);
+            }
+        } catch (e) {
+            const status = e.statusCode;
+            if (!status) {
+                throw e;
+            }
+            throw new HttpException(getValue(e, 'response.body', { message: e.message }), status);
         }
+
         return getMeta(FULL_RESPONSE) ? response : getMeta(RESPONSE_HEADER) ? response.headers : response.body;
     };
     return descriptor;
@@ -82,5 +93,5 @@ const getParams = (metadata, args) => {
             }
         }
     }
-    return {qs, body, params, headers};
+    return { qs, body, params, headers };
 };
