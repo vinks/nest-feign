@@ -12,7 +12,11 @@ import { get } from '../Cache';
 import { HttpException } from "@nestjs/common";
 import { get as getValue } from 'lodash';
 
-export const Feign = (service?: string) => (target, key, descriptor) => {
+export const FeignUpload = (service?: string) => createFeignClient('upload', service);
+
+export const Feign = (service?: string) => createFeignClient('send', service);
+
+export const createFeignClient = (type: string, service?: string) => (target, key, descriptor) => {
     const oldValue = descriptor.value;
 
     descriptor.value = async (...params) => {
@@ -36,22 +40,39 @@ export const Feign = (service?: string) => (target, key, descriptor) => {
             resolveWithFullResponse: true
         };
 
-        let response = { body: {}, headers: {} };
-        try {
-            if (clientType === 'LB') {
-                response = await client.get(service).send(request);
-            } else {
-                response = await client(request);
+        if (type === 'send') {
+            let response = { body: {}, headers: {} };
+            try {
+                if (clientType === 'LB') {
+                    response = await client.get(service).send(request);
+                } else {
+                    response = await client.rp(request);
+                }
+            } catch (e) {
+                const status = e.statusCode;
+                if (!status) {
+                    throw e;
+                }
+                throw new HttpException(getValue(e, 'response.body', { message: e.message }), status);
             }
-        } catch (e) {
-            const status = e.statusCode;
-            if (!status) {
-                throw e;
+
+            return getMeta(FULL_RESPONSE) ? response : getMeta(RESPONSE_HEADER) ? response.headers : response.body;
+        } else {
+            try {
+                if (clientType === 'LB') {
+                    return await client.get(service).upload(request);
+                } else {
+                    return client.request(request);
+                }
+            } catch (e) {
+                const status = e.statusCode;
+                if (!status) {
+                    throw e;
+                }
+                throw new HttpException(getValue(e, 'response.body', { message: e.message }), status);
             }
-            throw new HttpException(getValue(e, 'response.body', { message: e.message }), status);
         }
 
-        return getMeta(FULL_RESPONSE) ? response : getMeta(RESPONSE_HEADER) ? response.headers : response.body;
     };
     return descriptor;
 };
