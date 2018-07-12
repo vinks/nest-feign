@@ -59,6 +59,7 @@ export const createFeignClient = (type: string, service?: string) => (target, ke
             return getMeta(FULL_RESPONSE) ? response : getMeta(RESPONSE_HEADER) ? response.headers : response.body;
         } else {
             try {
+                delete request.body;
                 if (clientType === 'LB') {
                     return await client.get(service).upload(request);
                 } else {
