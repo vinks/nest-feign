@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {REQUEST_PARAMS_METADATA, PARAMS_METADATA, BODY_METADATA, QUERY_METADATA, HEADER_METADATA} from '../constants';
+import { REQUEST_PARAMS_METADATA, PARAMS_METADATA, BODY_METADATA, QUERY_METADATA, HEADER_METADATA } from '../constants';
 
 export const Param = (field?: string) => createParamDecorator(PARAMS_METADATA)(field);
 export const Body = (field?: string) => createParamDecorator(BODY_METADATA)(field);
@@ -20,7 +20,7 @@ const createParamDecorator = (paramType) => {
 const createSetParamDecorator = (paramType) => {
     return (data: string, value?: any) => (target, key) => {
         const args = Reflect.getMetadata(REQUEST_PARAMS_METADATA, target.constructor, key) || {};
-        Reflect.defineMetadata(REQUEST_PARAMS_METADATA, assignMetadata(args, paramType, 'const', data, value), target.constructor, key);
+        Reflect.defineMetadata(REQUEST_PARAMS_METADATA, assignMetadata(args, paramType, 'const__' + data, data, value), target.constructor, key);
     };
 };
 

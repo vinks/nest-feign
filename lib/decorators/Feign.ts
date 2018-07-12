@@ -108,9 +108,9 @@ const getParams = (metadata, args) => {
 
         if (target) {
             if (meta.data) {
-                target[meta.data] = meta.index === 'const' ? meta.value : args[meta.index];
+                target[meta.data] = meta.index.toString().indexOf('const') !== -1 ? meta.value : args[meta.index];
             } else {
-                Object.assign(target, meta.index === 'const' ? meta.value : args[meta.index]);
+                Object.assign(target, meta.index.toString().indexOf('const') !== -1 ? meta.value : args[meta.index]);
             }
         }
     }
