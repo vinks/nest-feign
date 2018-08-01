@@ -11,6 +11,7 @@ import {
 import { get } from '../Cache';
 import { HttpException } from "@nestjs/common";
 import { get as getValue } from 'lodash';
+import * as uriParams from 'uri-params';
 
 export const FeignUpload = (service?: string) => createFeignClient('upload', service);
 
@@ -39,6 +40,7 @@ export const createFeignClient = (type: string, service?: string) => (target, ke
             json: true,
             resolveWithFullResponse: true
         };
+        request.url = uriParams(request.url, request.params);
 
         if (type === 'send') {
             let response = { body: {}, headers: {} };
@@ -83,7 +85,7 @@ const metadataGetter = (value, oldValue) => (paramType) => {
 };
 
 const getParams = (metadata, args) => {
-    const qs = {}, body = null, params = {}, headers = {};
+    const qs = {}, body = {}, params = {}, headers = {};
 
     for (const key in metadata) {
         if (!metadata.hasOwnProperty(key)) {
@@ -115,5 +117,13 @@ const getParams = (metadata, args) => {
             }
         }
     }
-    return { qs, body, params, headers };
+    return { qs, body: isEmpty(body) ? undefined : body, params, headers };
 };
+
+function isEmpty(item) {
+    for (const key in item) {
+        return false;
+    }
+
+    return true;
+}
