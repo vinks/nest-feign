@@ -83,7 +83,7 @@ const metadataGetter = (value, oldValue) => (paramType) => {
 };
 
 const getParams = (metadata, args) => {
-    const qs = {}, body = {}, params = {}, headers = {};
+    const qs = {}, body = null, params = {}, headers = {};
 
     for (const key in metadata) {
         if (!metadata.hasOwnProperty(key)) {
