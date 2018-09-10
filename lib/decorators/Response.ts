@@ -1,10 +1,14 @@
 import "reflect-metadata";
-import {FULL_RESPONSE, RESPONSE_HEADER} from '../constants';
+import { RESPONSE, RESPONSE_HEADER, RESPONSE_BODY } from '../constants';
 
-export const FullResponse = () => (target, key, descriptor) => {
-    Reflect.defineMetadata(FULL_RESPONSE, true, descriptor.value);
+export const Response = (): MethodDecorator => (target, key, descriptor) => {
+    Reflect.defineMetadata(RESPONSE, true, descriptor.value);
 };
 
-export const ResponseHeader = () => (target, key, descriptor) => {
+export const ResponseHeader = (): MethodDecorator => (target, key, descriptor) => {
     Reflect.defineMetadata(RESPONSE_HEADER, true, descriptor.value);
+};
+
+export const ResponseBody = (): MethodDecorator => (target, key, descriptor) => {
+    Reflect.defineMetadata(RESPONSE_BODY, true, descriptor.value);
 };

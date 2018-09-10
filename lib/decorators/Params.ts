@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { REQUEST_PARAMS_METADATA, PARAMS_METADATA, BODY_METADATA, QUERY_METADATA, HEADER_METADATA } from '../constants';
 
-export const Param = (field?: string) => createParamDecorator(PARAMS_METADATA)(field);
-export const Body = (field?: string) => createParamDecorator(BODY_METADATA)(field);
-export const Query = (field?: string) => createParamDecorator(QUERY_METADATA)(field);
-export const Header = (field?: string) => createParamDecorator(HEADER_METADATA)(field);
-export const SetHeader = (field: string, value: any) => createSetParamDecorator(HEADER_METADATA)(field, value);
-export const SetQuery = (field: string, value: any) => createSetParamDecorator(QUERY_METADATA)(field, value);
-export const SetBody = (field: string, value: any) => createSetParamDecorator(BODY_METADATA)(field, value);
-export const SetParam = (field: string, value: any) => createSetParamDecorator(PARAMS_METADATA)(field, value);
+export const Param = (field?: string): ParameterDecorator => createParamDecorator(PARAMS_METADATA)(field);
+export const Body = (field?: string): ParameterDecorator => createParamDecorator(BODY_METADATA)(field);
+export const Query = (field?: string): ParameterDecorator => createParamDecorator(QUERY_METADATA)(field);
+export const Header = (field?: string): ParameterDecorator => createParamDecorator(HEADER_METADATA)(field);
+export const SetHeader = (field: string, value: any): MethodDecorator => createSetParamDecorator(HEADER_METADATA)(field, value);
+export const SetQuery = (field: string, value: any): MethodDecorator => createSetParamDecorator(QUERY_METADATA)(field, value);
+export const SetBody = (field: string, value: any): MethodDecorator => createSetParamDecorator(BODY_METADATA)(field, value);
+export const SetParam = (field: string, value: any): MethodDecorator => createSetParamDecorator(PARAMS_METADATA)(field, value);
 
 const createParamDecorator = (paramType) => {
     return (data: string, value?: any) => (target, key, index) => {

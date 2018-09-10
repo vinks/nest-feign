@@ -41,10 +41,13 @@ $ npm i --save nest-feign
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { FeignModule } from 'nest-feign';
+import { FeignModule, CONSUL_LOADBALANCE } from 'nest-feign';
 
 @Module({
-  imports: [FeignModule.initWithRequest()],
+  imports: [FeignModule.register({
+    adapter: '', // If use nest-consul-loadbalance module, please set CONSUL_LOADBALANCE
+    axiosConfig: {},
+  })],
 })
 export class ApplicationModule {}
 ```
@@ -54,35 +57,28 @@ export class ApplicationModule {}
 UserClient:
 
 ```typescript
-import { Component } from '@nestjs/common';
-import { Feign, FeignClient, Get, Param, Query, Post, Put, Delete } from 'nest-feign';
+import { Injectable } from '@nestjs/common';
+import { Get, Param, Query, Post, Put, Delete, Body } from 'nest-feign';
 
-@Component()
+@Injectable()
 export class UserClient {
-  constructor(private readonly feign: FeignClient) {}
-  
   @Get('http://example.com/api/users')
-  @Feign()
   getUsers(@Query() query: object) {
   }
   
   @Get('http://example.com/api/users/:userId')
-  @Feign()
   getUser(@Param('userId') userId: string) {
   }
   
   @Post('http://example.com/api/users')
-  @Feign()
   createUser(@Body() user: object) {
   }
   
   @Post('http://example.com/api/users/:userId')
-  @Feign()
   updateUser(@Param('userId') userId: string, @Body() user: object) {
   }
   
   @Delete('http://example.com/api/users/:userId')
-  @Feign()
   deleteUser(@Param('userId') userId: string) {
   }
 }

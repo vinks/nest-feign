@@ -1,42 +1,25 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
-import { set } from './Cache';
-import { FEIGN_CLIENT, FEIGN_CLIENT_TYPE } from './constants';
 import { Loadbalance } from 'nest-consul-loadbalance';
-import * as rp from 'request-promise';
-import * as request from 'request';
-import { FeignClient } from "./FeignClient";
+import axios from 'axios';
+import { set } from './Cache';
+import { CONSUL_LOADBALANCE, FEIGN_CLIENT, FEIGN_LOADBALANCE_CLIENT } from "./constants";
+import { FeignOptions } from "./FeignOptions";
 
 @Global()
 @Module({})
 export class FeignModule {
-    static initWithRequest(): DynamicModule {
+    static register(options?: FeignOptions): DynamicModule {
+        const inject = [];
+        if (options.adapter === CONSUL_LOADBALANCE) {
+            inject.push('LoadbalanceClient');
+        }
         const feignProvider = {
             provide: 'FeignClient',
-            useFactory: async (): Promise<FeignClient> => {
-                set(FEIGN_CLIENT, { rp, request });
-                set(FEIGN_CLIENT_TYPE, 'RP');
-
-                return new FeignClient(rp);
-            }
-        };
-
-        return {
-            module: FeignModule,
-            components: [feignProvider],
-            exports: [feignProvider],
-        };
-    }
-
-    static initWithLb(): DynamicModule {
-        const feignProvider = {
-            provide: 'FeignClient',
-            useFactory: async (lb: Loadbalance): Promise<FeignClient> => {
-                set(FEIGN_CLIENT, lb);
-                set(FEIGN_CLIENT_TYPE, 'LB');
-
-                return new FeignClient(lb);
+            useFactory: async (lb: Loadbalance): Promise<any> => {
+                set(FEIGN_CLIENT, axios.create(options.axiosConfig));
+                set(FEIGN_LOADBALANCE_CLIENT, lb);
             },
-            inject: ['LoadbalanceClient'],
+            inject,
         };
 
         return {
