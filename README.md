@@ -32,7 +32,7 @@ This is a [Nest](https://github.com/nestjs/nest) module for writing nestjs http 
 ## Installation
 
 ```bash
-$ npm i --save nest-feign
+$ npm i --save nest-feign nest-consul-loadbalance nest-consul consul
 ```
 
 ## Quick Start
