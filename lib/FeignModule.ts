@@ -1,8 +1,13 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
-import { Loadbalance } from 'nest-consul-loadbalance';
 import axios from 'axios';
 import { set } from './Cache';
-import { CONSUL_LOADBALANCE, FEIGN_CLIENT, FEIGN_LOADBALANCE_CLIENT } from "./constants";
+import {
+    CONSUL_LOADBALANCE,
+    FEIGN_CLIENT,
+    FEIGN_LOADBALANCE_CLIENT,
+    FEIGN_PROVIDER,
+    LOADBALANCE_PROVIDER
+} from "./constants";
 import { FeignOptions } from "./FeignOptions";
 
 @Global()
@@ -11,11 +16,11 @@ export class FeignModule {
     static register(options?: FeignOptions): DynamicModule {
         const inject = [];
         if (options.adapter === CONSUL_LOADBALANCE) {
-            inject.push('LoadbalanceClient');
+            inject.push(LOADBALANCE_PROVIDER);
         }
         const feignProvider = {
-            provide: 'FeignClient',
-            useFactory: async (lb: Loadbalance): Promise<any> => {
+            provide: FEIGN_PROVIDER,
+            useFactory: async (lb): Promise<any> => {
                 set(FEIGN_CLIENT, axios.create(options.axiosConfig));
                 set(FEIGN_LOADBALANCE_CLIENT, lb);
             },

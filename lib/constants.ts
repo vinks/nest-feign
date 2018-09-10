@@ -24,3 +24,7 @@ export const BLOB = 'blob';
 export const DOCUMENT = 'document';
 export const TEXT = 'text';
 export const STREAM = 'stream';
+
+export const LOADBALANCE_PROVIDER = 'LOADBALANCE_PROVIDER';
+
+export const FEIGN_PROVIDER = 'FEIGN_PROVIDER';
