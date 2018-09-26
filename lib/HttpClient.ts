@@ -7,7 +7,7 @@ export class HttpClient {
             return await http.request(config);
         } catch (e) {
             if (e.response) {
-                throw new HttpException(e.response, e.statusCode);
+                throw new HttpException(e.response.data, e.statusCode);
             } else if (e.request) {
                 throw new HttpException(e.request.message, 400);
             } else {
