@@ -7,3 +7,4 @@ export * from './decorators/Brakes';
 export * from './FeignModule';
 export * from './FeignOptions';
 export * from './constants';
+export * from './HystrixController';
