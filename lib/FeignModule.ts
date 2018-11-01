@@ -6,7 +6,8 @@ import {
     FEIGN_CLIENT,
     FEIGN_LOADBALANCE_CLIENT,
     FEIGN_PROVIDER,
-    LOADBALANCE_PROVIDER
+    LOADBALANCE_PROVIDER,
+    GLOBAL_BRAKES_CONFIG
 } from "./constants";
 import { FeignOptions } from "./FeignOptions";
 
@@ -23,6 +24,7 @@ export class FeignModule {
             useFactory: async (lb): Promise<any> => {
                 set(FEIGN_CLIENT, axios.create(options.axiosConfig));
                 set(FEIGN_LOADBALANCE_CLIENT, lb);
+                set(GLOBAL_BRAKES_CONFIG, options.brakesConfig);
             },
             inject,
         };

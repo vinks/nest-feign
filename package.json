@@ -1,6 +1,6 @@
 {
   "name": "nest-feign",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Feign is a nest http decorators library that makes writing nodejs http clients easier.",
   "author": "Miaowing <i@zfeng.net>",
   "license": "MIT",
@@ -11,13 +11,13 @@
     "test": "ts-node -r tsconfig-paths/register test/TestClient.ts"
   },
   "peerDependencies": {
-    "@nestjs/common": "^5.0.0",
+    "@nestjs/common": "^5.4.0",
     "consul": "^0.30.0",
     "nest-consul-loadbalance": "^3.0.0"
   },
   "devDependencies": {
-    "@nestjs/common": "^5.0.0",
-    "@nestjs/core": "^5.0.0",
+    "@nestjs/common": "^5.4.0",
+    "@nestjs/core": "^5.4.0",
     "@types/node": "^7.0.41",
     "consul": "^0.33.0",
     "husky": "^0.14.3",
@@ -35,13 +35,10 @@
     "url": "https://github.com/miaowing/nest-feign/issues"
   },
   "homepage": "https://github.com/miaowing/nest-feign#readme",
-  "optionalDependencies": {
-    "request": "^2.87.0",
-    "request-promise": "^4.2.2"
-  },
   "dependencies": {
     "@types/lodash": "^4.14.108",
-    "axios": "^0.18.0",
+    "brakes": "^2.6.0",
+    "nest-consul-loadbalance": "^3.2.1",
     "reflect-metadata": "^0.1.12",
     "uri-params": "^0.1.3"
   }

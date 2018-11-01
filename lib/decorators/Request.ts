@@ -8,15 +8,16 @@ import {
     RESPONSE_HEADER,
     REQUEST_PARAMS_METADATA,
     FEIGN_CLIENT,
-    SERVICE, FEIGN_LOADBALANCE_CLIENT
+    SERVICE, FEIGN_LOADBALANCE_CLIENT, BRAKES, BRAKES_CIRCUIT
 } from '../constants';
 import { get } from "../Cache";
-import { HttpException, InternalServerErrorException } from "@nestjs/common";
 import * as uriParams from 'uri-params';
 import { getParams, getMetadata } from '../utils/getter';
-import { AxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
+import { AxiosRequestConfig, AxiosInstance } from 'axios';
 import { HttpClient } from '../HttpClient';
-import { HttpDelegate, Loadbalance, ServerCriticalException } from 'nest-consul-loadbalance';
+import { Loadbalance } from 'nest-consul-loadbalance';
+import * as Brakes from 'brakes';
+import * as Circuit from 'brakes/lib/Circuit';
 
 export const Get = (path: string, options?: AxiosRequestConfig): MethodDecorator => createMappingDecorator('GET', path, options);
 
@@ -49,43 +50,37 @@ const createMappingDecorator = (method: string, path: string, options?: object) 
 
         const options: AxiosRequestConfig = getMeta(OPTIONS_METADATA) || {};
         const parameters = getParams(paramMetadata, params);
-        const request = {
+        const axiosRequestConfig = {
             ...options,
             params: parameters.params,
             data: parameters.data,
             headers: parameters.headers,
             method: getMeta(METHOD_METADATA),
             url: uriParams(getMeta(PATH_METADATA), parameters.uriParams),
-        };
+        } as AxiosRequestConfig;
 
         let serviceName = getMeta(SERVICE);
         if (serviceName === void 0) {
             serviceName = Reflect.getMetadata(SERVICE, target.constructor);
         }
-        const enableLb = !!serviceName && serviceName !== 'none';
-        let response: AxiosResponse;
-        if (enableLb && loadbalance) {
-            try {
-                const server = loadbalance.choose(serviceName);
-                if (!server) {
-                    throw new InternalServerErrorException(`No available server can handle request`);
-                }
-                response = await new HttpDelegate(server).send(http, request);
-            } catch (e) {
-                if (e instanceof ServerCriticalException) {
-                    throw new HttpException(e.message, 500);
-                } else if (e instanceof HttpException) {
-                    throw e;
-                } else {
-                    throw new HttpException(e.message, 500);
-                }
-            }
 
-        } else {
-            response = await new HttpClient().send(http, request);
+        let circuit = getMeta(BRAKES_CIRCUIT) as Circuit;
+        if (!circuit) {
+            let brakes = getMeta(BRAKES) as Brakes;
+            if (brakes === void 0) {
+                brakes = Reflect.getMetadata(BRAKES, target.constructor);
+            }
+            if (brakes && brakes !== 'none') {
+                circuit = brakes.slaveCircuit.bind(brakes) as Circuit;
+                Reflect.defineMetadata(BRAKES_CIRCUIT, circuit, descriptor.value);
+            }
         }
 
-        return getMeta(RESPONSE) ? response : getMeta(RESPONSE_HEADER) ? response.headers : response.data;
+        const client = new HttpClient(serviceName);
+        client.setLoadbalance(loadbalance);
+        client.setAxiosInstance(http);
+        client.setCircuit(circuit);
+        return await client.request(axiosRequestConfig, { responseType: RESPONSE || RESPONSE_HEADER });
     };
     return descriptor;
 };

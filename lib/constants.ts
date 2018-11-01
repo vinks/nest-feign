@@ -28,3 +28,7 @@ export const STREAM = 'stream';
 export const LOADBALANCE_PROVIDER = 'LOADBALANCE_PROVIDER';
 
 export const FEIGN_PROVIDER = 'FEIGN_PROVIDER';
+
+export const GLOBAL_BRAKES_CONFIG = 'GLOBAL_BRAKES_CONFIG';
+export const BRAKES = 'BRAKES';
+export const BRAKES_CIRCUIT = 'BRAKES_CIRCUIT';
