@@ -80,7 +80,7 @@ const createMappingDecorator = (method: string, path: string, options?: object) 
         client.setLoadbalance(loadbalance);
         client.setAxiosInstance(http);
         client.setCircuit(circuit);
-        return await client.request(axiosRequestConfig, { responseType: RESPONSE || RESPONSE_HEADER });
+        return await client.request(axiosRequestConfig, { responseType: getMeta(RESPONSE) || getMeta(RESPONSE_HEADER) });
     };
     return descriptor;
 };
