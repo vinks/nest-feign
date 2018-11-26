@@ -1,6 +1,6 @@
 {
   "name": "nest-feign",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Feign is a nest http decorators library that makes writing nodejs http clients easier.",
   "author": "Miaowing <i@zfeng.net>",
   "license": "MIT",
