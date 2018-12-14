@@ -2,6 +2,7 @@ export const FEIGN_CLIENT = 'FEIGN_CLIENT';
 export const FEIGN_LOADBALANCE_CLIENT = 'FEIGN_LOADBALANCE_CLIENT';
 
 export const SERVICE = 'SERVICE';
+export const MIDDLEWARE = 'MIDDLEWARE';
 
 export const PATH_METADATA = 'PATH';
 export const METHOD_METADATA = 'METHOD';

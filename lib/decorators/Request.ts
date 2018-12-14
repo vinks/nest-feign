@@ -8,7 +8,7 @@ import {
     RESPONSE_HEADER,
     REQUEST_PARAMS_METADATA,
     FEIGN_CLIENT,
-    SERVICE, FEIGN_LOADBALANCE_CLIENT, BRAKES, BRAKES_CIRCUIT
+    SERVICE, FEIGN_LOADBALANCE_CLIENT, BRAKES, BRAKES_CIRCUIT, MIDDLEWARE
 } from '../constants';
 import { get } from "../Cache";
 import * as uriParams from 'uri-params';
@@ -48,6 +48,7 @@ const createMappingDecorator = (method: string, path: string, options?: object) 
         const getMeta = getMetadata(oldValue, descriptor.value);
         const paramMetadata = Reflect.getMetadata(REQUEST_PARAMS_METADATA, target.constructor, key);
 
+        // axios config
         const options: AxiosRequestConfig = getMeta(OPTIONS_METADATA) || {};
         const parameters = getParams(paramMetadata, params);
         const axiosRequestConfig = {
@@ -59,11 +60,13 @@ const createMappingDecorator = (method: string, path: string, options?: object) 
             url: uriParams(getMeta(PATH_METADATA), parameters.uriParams),
         } as AxiosRequestConfig;
 
+        // loadbalanced
         let serviceName = getMeta(SERVICE);
         if (serviceName === void 0) {
             serviceName = Reflect.getMetadata(SERVICE, target.constructor);
         }
 
+        // brakes
         let circuit = getMeta(BRAKES_CIRCUIT) as Circuit;
         if (!circuit) {
             let brakes = getMeta(BRAKES) as Brakes;
@@ -76,10 +79,13 @@ const createMappingDecorator = (method: string, path: string, options?: object) 
             }
         }
 
+        const middleware = (getMeta(MIDDLEWARE) || []).concat((Reflect.getMetadata(MIDDLEWARE, target.constructor) || []));
+
         const client = new HttpClient(serviceName);
         client.setLoadbalance(loadbalance);
         client.setAxiosInstance(http);
         client.setCircuit(circuit);
+        client.setMiddleware(middleware);
         return await client.request(axiosRequestConfig, { responseType: getMeta(RESPONSE) || getMeta(RESPONSE_HEADER) });
     };
     return descriptor;
